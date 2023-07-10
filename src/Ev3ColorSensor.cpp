@@ -47,7 +47,7 @@ int8_t Ev3ColorSensor::read(){
       serialValue[3] = 0;
     }
   }
-  if (resp <= 0 || resp > 7)
+  if (mode == COLOR && (resp < 0 || resp > 7))
     resp = 0;
   return resp;
 }
