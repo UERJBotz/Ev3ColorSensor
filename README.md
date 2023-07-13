@@ -102,7 +102,7 @@ We highly recommend referring to these resources for in-depth information and gu
 Additionally, for detailed technical specifications and insights, the following PDF documents from LEGO Mindstorms can be found in the `docs` folder of this repository:
 
 - [LEGO Mindstorms EV3 Hardware Developer Kit](./docs/lego-mindstorms-ev3-hardware-developer-kit.pdf)
-- [LEGO Mindstorms EV3 Sensor and Motor Compatibility Chart](./docs/lego-mindstorms-ev3-sensor-motor-compatibility-chart.pdf)
+- [LEGO Mindstorms EV3 Sensor and Motor Compatibility Chart](./docs/lego-mindstorms-ev3-color-sensor-hardware-schematics.pdf)
 
 Feel free to explore these PDFs for additional information about the LEGO Mindstorms EV3 system.
 
