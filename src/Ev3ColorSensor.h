@@ -25,13 +25,14 @@ class Ev3ColorSensor
 {
   private:
     int serialValue [4];
-    uint8_t mode;
+    uint8_t mode, waitTime;
+    unsigned long T0;
     SoftwareSerial sensorSerial;
     void sendMode();
   public:
     // 
-    Ev3ColorSensor(uint8_t rx, uint8_t tx, uint8_t newMode = COLOR): 
-      sensorSerial (rx, tx), mode (newMode), serialValue {0,0,0,0}{};
+    Ev3ColorSensor(uint8_t rx, uint8_t tx, uint8_t wt = 5, uint8_t newMode = COLOR): 
+      sensorSerial (rx, tx), mode (newMode), serialValue {0,0,0,0}, waitTime (wt){};
     
     // Start sensor communication
     void begin();
@@ -47,12 +48,15 @@ class Ev3ColorSensor
     // 7	Brown |
     int8_t read();
 
-    // Acept a difined constant |
+    // Accepts a defined constant |
     // RED_LIGHT |
     // BLUE_LIGHT |
     // COLOR_LIGHT |
     // OFF |
     void setMode(uint8_t newMode);
+
+    // Changes which sensor will be read
+    void activate();
 };
 
 #endif // EV3COLORSENSOR_H

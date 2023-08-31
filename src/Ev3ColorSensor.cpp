@@ -25,6 +25,8 @@ void Ev3ColorSensor::begin(){
 
 int8_t Ev3ColorSensor::read(){
   sendMode();
+  T0 = millis();
+  while(millis() - T0 <= waitTime); // ensures sensor is ready
   int8_t resp;
   while (sensorSerial.available()){
     serialValue[2] = sensorSerial.read();
@@ -70,4 +72,8 @@ void Ev3ColorSensor::sendMode() {
 
     sensorSerial.write(NACK);
   }
+}
+
+void Ev3ColorSensor::activate(){
+  sensorSerial.listen();
 }
