@@ -17,11 +17,14 @@
 #define ACK  0x04
 #define NACK 0x02
 
+// https://github.com/JakubVanek/lms2012-stuff/ -> ev3color/program.h
 enum Ev3ColorSensorMode : uint8_t {
-    RED_LIGHT  = 0,
-    BLUE_LIGHT = 1,
-    COLOR      = 2,
-    OFF        = 5,
+    RED_LIGHT  = 0, // COL-REFLECT
+    BLUE_LIGHT = 1, // COL-AMBIENT
+    COLOR      = 2, // COL-COLOR
+    RAW        = 3, // REF-RAW
+    RGB        = 4, // RGB-RAW
+    OFF        = 5, // COL-CAL
 };
 
 enum Ev3Color : int8_t {
@@ -36,21 +39,7 @@ enum Ev3Color : int8_t {
     EV3COLORCOUNT,
 };
 
-const String Ev3ColorNameTable[] = {
-    [None]   = "None",
-    [Black]  = "Black",
-    [Blue]   = "Blue",
-    [Green]  = "Green",
-    [Yellow] = "Yellow",
-    [Red]    = "Red",
-    [White]  = "White",
-    [Brown]  = "Brown",
-};
-
-#define LEN(arr) (sizeof(arr)/sizeof(*arr))
-static_assert(LEN(Ev3ColorNameTable) == Ev3Color::EV3COLORCOUNT);
-#undef LEN
-
+const String Ev3ColorString(const Ev3Color color);
 
 class Ev3ColorSensor {
   private:
@@ -59,8 +48,9 @@ class Ev3ColorSensor {
     SoftwareSerial sensorSerial;
 
     void sendMode();
+
   public:
-    Ev3ColorSensor(uint8_t rx, uint8_t tx, uint8_t wt = 5, uint8_t newMode = COLOR): 
+    Ev3ColorSensor(uint8_t rx, uint8_t tx, uint8_t newMode = COLOR, uint8_t wt = 5):
       sensorSerial(rx, tx), mode(newMode), serialValue{0,0,0,0}, waitTime(wt){};
 
     // Starts sensor communication

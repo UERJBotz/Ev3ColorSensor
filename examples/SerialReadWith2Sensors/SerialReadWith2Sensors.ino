@@ -14,11 +14,11 @@ void setup(){
 void loop(){
     sensor1.activate();
     Serial.print("S1: ");
-    Serial.print(Ev3ColorNameTable[sensor1.read()]);
+    Serial.print(Ev3ColorString(sensor1.read()));
 
     sensor2.activate();
     Serial.print(", S2: ");
-    Serial.print(Ev3ColorNameTable[sensor2.read()]);
+    Serial.print(Ev3ColorString(sensor2.read()));
 
     Serial.println("");
 }

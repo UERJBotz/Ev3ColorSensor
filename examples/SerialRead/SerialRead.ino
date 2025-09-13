@@ -11,5 +11,5 @@ void setup(){
 
 void loop(){
     uint8_t color = sensor.read();
-    Serial.println(Ev3ColorNameTable[color]);
+    Serial.println(Ev3ColorString(color));
 }
