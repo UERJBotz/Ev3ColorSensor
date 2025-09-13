@@ -7,13 +7,14 @@
   that it will be useful, but WITHOUT ANY WARRANTY;
 */
 
-#ifndef EV3COLORSENSOR_H
-#define EV3COLORSENSOR_H
+#ifndef _EV3COLORSENSOR_H_
+#define _EV3COLORSENSOR_H_
 
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 
-#define ACK 0x04
+
+#define ACK  0x04
 #define NACK 0x02
 
 enum Ev3ColorSensorMode : uint8_t {
@@ -32,33 +33,47 @@ enum Ev3Color : int8_t {
     Red    = 5,
     White  = 6,
     Brown  = 7,
+    EV3COLORCOUNT,
 };
+
+const String Ev3ColorNameTable[] = {
+    [None]   = "None",
+    [Black]  = "Black",
+    [Blue]   = "Blue",
+    [Green]  = "Green",
+    [Yellow] = "Yellow",
+    [Red]    = "Red",
+    [White]  = "White",
+    [Brown]  = "Brown",
+};
+
+#define LEN(arr) (sizeof(arr)/sizeof(*arr))
+static_assert(LEN(Ev3ColorNameTable) == Ev3Color::EV3COLORCOUNT);
+#undef LEN
+
 
 class Ev3ColorSensor {
   private:
-    int serialValue [4];
+    int serialValue[4];
     uint8_t mode, waitTime;
     SoftwareSerial sensorSerial;
+
     void sendMode();
   public:
     Ev3ColorSensor(uint8_t rx, uint8_t tx, uint8_t wt = 5, uint8_t newMode = COLOR): 
-      sensorSerial (rx, tx), mode (newMode), serialValue {0,0,0,0}, waitTime (wt){};
-    
-    // Start sensor communication
+      sensorSerial(rx, tx), mode(newMode), serialValue{0,0,0,0}, waitTime(wt){};
+
+    // Starts sensor communication
     void begin();
-    
-    // Returns a color number |
+
+    // Reads and returns the current color
     Ev3Color read();
 
-    // Accepts a defined constant |
-    // RED_LIGHT |
-    // BLUE_LIGHT |
-    // COLOR_LIGHT |
-    // OFF |
+    // Changes the sensor's mode of operation based on a constant
     void setMode(Ev3ColorSensorMode newMode);
 
     // Changes which sensor will be read
     void activate();
 };
 
-#endif // EV3COLORSENSOR_H
+#endif // _EV3COLORSENSOR_H_
