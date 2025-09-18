@@ -43,15 +43,19 @@ const String Ev3ColorString(const Ev3Color color);
 
 class Ev3ColorSensor {
   private:
-    int serialValue[4];
-    uint8_t mode, waitTime;
     SoftwareSerial sensorSerial;
+    uint8_t waitTime;
 
+    int serialValue[2] = {0};
+    int lastSerialValue = 0;
+    bool receivedOk = false;
+
+    Ev3ColorSensorMode mode = Ev3ColorSensorMode::COLOR;
     void sendMode();
 
   public:
-    Ev3ColorSensor(uint8_t rx, uint8_t tx, uint8_t newMode = COLOR, uint8_t wt = 5):
-      sensorSerial(rx, tx), mode(newMode), serialValue{0,0,0,0}, waitTime(wt){};
+    Ev3ColorSensor(uint8_t rx, uint8_t tx, Ev3ColorSensorMode newMode = COLOR, uint8_t wt = 5):
+      sensorSerial(rx, tx), mode(newMode), waitTime(wt){};
 
     // Starts sensor communication
     void begin();
