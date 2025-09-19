@@ -51,6 +51,7 @@ class Ev3ColorSensor {
     bool done = false;
 
     int readByte();
+    bool Ev3ColorSensor::parse_color(int byte, Ev3Color* out);
 
     Ev3ColorSensorMode mode = Ev3ColorSensorMode::COLOR;
     void sendMode();
