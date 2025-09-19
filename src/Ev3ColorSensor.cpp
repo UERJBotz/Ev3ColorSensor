@@ -47,37 +47,43 @@ void Ev3ColorSensor::begin() {
   sendMode();
 }
 
+int Ev3ColorSensor::readByte() { //! isso precisou ser int (não int8_t), ou isso ou a variável em read()
+  int curr = sensorSerial.read();
+  prevSerialFailed = (curr == -1);
+  return curr;
+}
+
 // https://github.com/JakubVanek/lms2012-stuff/ -> ev3sensors/color/metadata.txt
 Ev3Color Ev3ColorSensor::read() {
   //! tipo de retorno errado (fazer tagged union ColorSensorResponse)
+  //! converter funções da outra branch pra receber um ponteiro pra estrutura que eles têm que preencher, já preenchido com o primeiro byte
 
   sendMode();
   DELAY(waitTime); // ensures sensor is ready
 
   Ev3Color resp = None;
   while (sensorSerial.available()){
-    lastSerialValue = sensorSerial.read();
+    int currByte = readByte();
 
-    if ((lastSerialValue != -1) && !receivedOk) {
-      switch(mode) {
+    if (prevSerialFailed || done) done = false;
+    else {
+      switch (mode) {
         case COLOR: {
-          if (lastSerialValue > EV3COLORCOUNT) break;
+          if (currByte > EV3COLORCOUNT) break;
 
-          receivedOk = true; resp = (Ev3Color)lastSerialValue;
+          done = true; resp = (Ev3Color)currByte;
         } break;
         case RED_LIGHT: case BLUE_LIGHT: {
-          if (lastSerialValue > 100) break;
+          if (currByte > 100) break;
 
-          receivedOk = true; resp = (Ev3Color)lastSerialValue;
+          done = true; resp = (Ev3Color)currByte;
         } break;
 
         case RAW: case RGB: //!
         case OFF: {
-          receivedOk = true; resp = None;
+          done = true; resp = None;
         } break;
       }
-    } else {
-      receivedOk = false;
     }
   }
   return resp;

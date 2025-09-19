@@ -47,8 +47,10 @@ class Ev3ColorSensor {
     uint8_t waitTime;
 
     int serialValue[2] = {0};
-    int lastSerialValue = 0;
-    bool receivedOk = false;
+    bool prevSerialFailed = false;
+    bool done = false;
+
+    int readByte();
 
     Ev3ColorSensorMode mode = Ev3ColorSensorMode::COLOR;
     void sendMode();
