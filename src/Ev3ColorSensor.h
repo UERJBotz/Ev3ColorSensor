@@ -19,12 +19,18 @@
 
 // https://github.com/JakubVanek/lms2012-stuff/ -> ev3color/program.h
 enum Ev3ColorSensorMode : uint8_t {
-    RED_LIGHT  = 0, // COL-REFLECT
-    BLUE_LIGHT = 1, // COL-AMBIENT
-    COLOR      = 2, // COL-COLOR
-    RAW        = 3, // REF-RAW
-    RGB        = 4, // RGB-RAW
-    OFF        = 5, // COL-CAL
+    REFLECT = 0, // COL-REFLECT
+    AMBIENT = 1, // COL-AMBIENT
+    COLOR   = 2, // COL-COLOR
+    RAW     = 3, // REF-RAW
+    RGB     = 4, // RGB-RAW
+    CAL     = 5, // COL-CAL
+
+    REF_RAW     = RAW,
+    RGB_RAW     = RGB,
+    RED_LIGHT   = REFLECT,
+    BLUE_LIGHT  = AMBIENT,
+    LIGHT_OFF   = CAL,
 };
 
 enum Ev3Color : int8_t {
@@ -39,6 +45,14 @@ enum Ev3Color : int8_t {
     EV3COLORCOUNT,
 };
 
+struct Ev3RGB { uint16_t r, g, b; };
+//! fazer tagged union em vez de union?
+union Ev3ColorResult {
+    Ev3RGB rgb;
+    Ev3Color color;
+    uint8_t intensity;
+};
+
 const String Ev3ColorString(const Ev3Color color);
 
 class Ev3ColorSensor {
@@ -51,7 +65,8 @@ class Ev3ColorSensor {
     bool done = false;
 
     int readByte();
-    bool Ev3ColorSensor::parse_color(int byte, Ev3Color* out);
+    bool parseColor(int byte, Ev3Color* out);
+    bool parseIntensity(int byte, uint8_t* out);
 
     Ev3ColorSensorMode mode = Ev3ColorSensorMode::COLOR;
     void sendMode();
@@ -64,7 +79,7 @@ class Ev3ColorSensor {
     void begin();
 
     // Reads and returns the current color
-    Ev3Color read();
+    Ev3ColorResult read();
 
     // Changes the sensor's mode of operation based on a constant
     void setMode(Ev3ColorSensorMode newMode);

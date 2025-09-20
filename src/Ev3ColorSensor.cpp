@@ -1,9 +1,17 @@
-#include <assert.h>
-
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include <Ev3ColorSensor.h>
 
+
+//! receber modo no begin()
+//! conseguir retornar byte em readByte()
+
+#define ASSERT(exp) ( \
+        (exp) ? 1 : 0 \
+          && Serial.print(__FILE__) && Serial.print(":") \
+          && Serial.print(__LINE__)                      \
+          && Serial.print(": assertion "#exp" failed\n") \
+        )
 
 #define LEN(arr) (sizeof(arr)/sizeof(*arr))
 #define DELAY(w) for(uintmax_t t0 = millis(); millis() - t0 <= w;)
@@ -53,49 +61,55 @@ int Ev3ColorSensor::readByte() { //! isso precisou ser int (não int8_t), ou iss
   return curr;
 }
 
-bool Ev3ColorSensor::parse_color(int byte, Ev3Color* out) {
+bool Ev3ColorSensor::parseColor(int byte, Ev3Color* out) {
   if (byte == -1)           return false;
   if (byte > EV3COLORCOUNT) return false;
 
   *out = (Ev3Color)byte; return true;
 }
+bool Ev3ColorSensor::parseIntensity(int byte, uint8_t* out) {
+  if (byte == -1) return false;
+  if (byte > 100) return false;
+
+  *out = (uint8_t)byte; return true;
+}
+//! converter resto das funções da outra branch pra ficar que nem essas
 
 // https://github.com/JakubVanek/lms2012-stuff/ -> ev3sensors/color/metadata.txt
-Ev3Color Ev3ColorSensor::read() {
-  //! tipo de retorno errado (fazer tagged union ColorSensorResponse)
-  //! converter funções da outra branch pra receber um ponteiro pra estrutura que eles têm que preencher, já preenchido com o primeiro byte, que nem parse_color
-
+Ev3ColorResult Ev3ColorSensor::read() {
   sendMode();
   DELAY(waitTime); // ensures sensor is ready
 
-  Ev3Color resp = None;
+  Ev3ColorResult ret = {None};
   while (sensorSerial.available()){
     int currByte = readByte();
 
     if (prevSerialFailed || done) done = false;
     else {
       switch (mode) {
-        case COLOR: done = parse_color(currByte, &resp); break;
-        case RED_LIGHT: case BLUE_LIGHT: {
-          if (currByte > 100) break;
+        case COLOR: {
+          done = parseColor(currByte, &ret.color);
+        } break;
 
-          done = true; resp = (Ev3Color)currByte;
+        case AMBIENT:
+        case REFLECT: {
+          done = parseIntensity(currByte, &ret.intensity);
         } break;
 
         case RAW: case RGB: //!
-        case OFF: {
-          done = true; resp = None;
-        } break;
+        case CAL: done = true; break;
       }
     }
   }
-  return resp;
+  return ret;
 }
 
 void Ev3ColorSensor::setMode(Ev3ColorSensorMode newMode) { 
-  if (RED_LIGHT < newMode && newMode > OFF) {
-    mode = newMode; 
-  } else assert(!"invalid mode");
+  if (newMode == mode) return;
+
+  mode = newMode; 
+  if (ASSERT(RED_LIGHT > newMode)) mode = RED_LIGHT;
+  if (ASSERT(newMode > LIGHT_OFF)) mode = LIGHT_OFF;
 }
 
 void Ev3ColorSensor::sendMode() {
