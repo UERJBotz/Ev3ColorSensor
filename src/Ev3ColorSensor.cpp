@@ -5,6 +5,7 @@
 
 //! receber modo no begin()
 //! conseguir retornar byte em readByte()
+//! fazer não precisar fazer activate
 
 #define ASSERT(exp) ( \
         (exp) ? 1 : 0 \
